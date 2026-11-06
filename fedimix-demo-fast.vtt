@@ -1,0 +1,40 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.900
+Fedimix is a Linux wallet with two sides: Spending, which is Fedimint ecash, and Saving, on-chain cold storage.
+
+00:00:04.000 --> 00:00:09.400
+Money lands in Spending over Lightning. Joining the federation is a one-time step, so we skip it.
+
+00:00:09.500 --> 00:00:17.400
+Saving is set up on this computer, with keys from the same recovery words.
+
+00:00:17.500 --> 00:00:29.900
+Now a send from Saving. The review shows that the change goes to Spending, as a fresh federation deposit.
+
+00:00:30.000 --> 00:00:43.900
+Once it confirms, the federation credits the change in Spending. Refill tops Spending up from Saving.
+
+00:00:44.000 --> 00:00:48.900
+From here on it is a simulation on our demo backend. The real backend does not do exits yet.
+
+00:00:49.000 --> 00:01:00.900
+Anything above the target is split into common denominations and queued. Each row shows its anon set, and the bar shows progress.
+
+00:01:01.000 --> 00:01:05.400
+You do nothing while you wait. Each coin leaves after a random, Poisson-distributed delay, shorter as anonymity grows.
+
+00:01:05.500 --> 00:01:15.400
+When its time comes a coin exits by itself, and lands in Saving tagged with its anon set. Unmixed coins show in red.
+
+00:01:15.500 --> 00:01:19.400
+The queue shrinks, and the next coin is scheduled.
+
+00:01:19.500 --> 00:01:31.400
+Need money now? Exit now shows the fee and warns that privacy is lower.
+
+00:01:31.500 --> 00:01:36.900
+That coin lands tagged early exit, so you always see which ones left early. The change flows back to Spending.
+
+00:01:37.000 --> 00:01:43.380
+Deposit, wait, exit privately, spend. Real exits come with the real backend. Thanks for listening.
