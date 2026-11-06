@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fedimix</title>
-<meta name="description" content="Fedimix: an ecash Spending wallet plus a cold Saving wallet, with privacy exits between them. Hackathon prototype.">
+<meta name="description" content="Fedimix: deposit into ecash Spending, wait for anonymity to grow, exit automatically to cold Saving. Hackathon prototype.">
 <style>
 :root{--bg:#fafaf7;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#6a3fd1;--real:#16794a;--realbg:#dff3e8;--sim:#a1470f;--simbg:#fde8d6;--warn:#fff4d6}
 @media (prefers-color-scheme:dark){:root{--bg:#121216;--fg:#ececf1;--mut:#a0a0ad;--card:#1b1b22;--line:#2c2c36;--acc:#a98bff;--real:#6fdba0;--realbg:#163a29;--sim:#ffb27a;--simbg:#43250f;--warn:#3a3213}}
@@ -37,84 +37,23 @@ ul{padding-left:1.2em;margin:6px 0}li{margin-bottom:4px}
 .chips span{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px 14px;margin:0 6px 8px 0;font-size:.95rem}
 footer{color:var(--mut);font-size:.85rem;margin-top:48px}
 @media(min-width:1000px){body{font-size:20px}}
-</style></head><body><main>
-
+.step{display:flex;gap:12px;margin:28px 0}.n{flex:none;width:2.2rem;height:2.2rem;border-radius:99px;background:var(--acc);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}.step h3{margin:0 0 4px;font-size:1.25rem}.step p{margin:0 0 8px;color:var(--mut);font-size:.98rem}.step figure{margin-top:6px}.btn{display:inline-block;background:var(--acc);color:#fff;font-weight:700;padding:12px 20px;border-radius:12px;text-decoration:none;margin:0 8px 8px 0}.step>div{min-width:0}</style></head><body><main>
 <section class="hero">
 <h1>Fedimix</h1>
-<p style="margin:12px 0"><a href="script.html" style="display:inline-block;background:var(--acc);color:#fff;font-weight:700;padding:12px 20px;border-radius:12px;text-decoration:none">3-minute talk script</a> <a href="slides.html" style="display:inline-block;background:var(--acc);color:#fff;font-weight:700;padding:12px 20px;border-radius:12px;text-decoration:none;margin-left:8px">Slides</a></p>
-<p class="pitch">An ecash Spending wallet plus a cold Saving wallet, with privacy exits between them.</p>
-<video controls playsinline preload="metadata" poster="img/r-05-joined.png" src="fedimix-full-demo.mp4"></video>
-<p class="note">4 min demo. First 2:16 is the real app on a local regtest federation. The rest is a simulation on the demo backend, and says so on screen.</p>
+<p class="pitch">Deposit, wait for anonymity to grow, exit automatically to cold storage.</p>
+<p><a class="btn" href="script.html">3-minute talk script</a><a class="btn" href="slides.html">Slides</a></p>
 </section>
-
-<section>
-<h2>The problem and the idea</h2>
-<p>Bitcoin on chain is easy to trace. Coins you receive are linked to the coins you spend, and a hardware wallet does nothing about that. Mixing in a Fedimint federation helps, because ecash is fungible: nobody can tell which deposit funds which withdrawal.</p>
-<p>Fedimix puts both sides in one app. Incoming coins are deposited into a federation (Spending), where you pay over Lightning or on chain. Anything above a target balance is split into common denominations and waits in a queue.</p>
-<p>Each denomination leaves for cold storage (Saving) on its own, after a random delay that gets shorter as the number of other deposits it could be confused with grows. Change from cold spends flows back into the federation, so Saving never links to your spending.</p>
+<section style="margin-top:24px">
+<div class="step"><div class="n">1</div><div><h3>Deposit into Spending</h3><p>Money lands in Spending as Fedimint ecash.</p><figure><img loading="lazy" src="img/r-07-lightning-received.png" alt="Deposit into Spending"><figcaption><span class="tag r">Real &middot; regtest</span></figcaption></figure></div></div><div class="step"><div class="n">2</div><div><h3>The surplus is queued</h3><p>Above Spending's target, coins are split into common denominations and queued.</p><figure><img loading="lazy" src="img/s-02-queue.png" alt="The surplus is queued"><figcaption><span class="tag s">Simulated (demo backend)</span></figcaption></figure></div></div><div class="step"><div class="n">3</div><div><h3>Wait while the anon set grows</h3><p>Each coin's anonymity estimate rises as others deposit. It leaves after a random, Poisson-timed wait, so timing leaks nothing. Typical exit within about a day.</p><figure><img loading="lazy" src="img/s-03-withdrawing.png" alt="Wait while the anon set grows"><figcaption><span class="tag s">Simulated (demo backend)</span></figcaption></figure></div></div><div class="step"><div class="n">4</div><div><h3>Automatic exit to Saving</h3><p>The coin lands in cold Saving tagged with its anon set. Need it now? Exit early, and it is labelled as such.</p><figure><img loading="lazy" src="img/s-05-landed-privacy-tags.png" alt="Automatic exit to Saving"><figcaption><span class="tag s">Simulated (demo backend)</span></figcaption></figure></div></div><div class="step"><div class="n">5</div><div><h3>Change flows back into ecash</h3><p>Sends from Saving pay their change back into Spending, so the loop closes.</p><figure><img loading="lazy" src="img/r-16-change-in-spending.png" alt="Change flows back into ecash"><figcaption><span class="tag r">Real &middot; regtest</span></figcaption></figure></div></div>
 </section>
-
 <section>
-<h2>How it works</h2>
-<div class="flow">
-<div class="box"><h3>Spending</h3><p>Fedimint ecash. Lightning and on-chain. Keeps a target balance (default 0.05 BTC).</p></div>
-<div class="mid">
-<div class="arrow">Exits: 0.01, 0.02, 0.05 ... after a random delay</div>
-<div class="arrow back">Change and Refill</div>
-</div>
-<div class="box"><h3>Saving</h3><p>On-chain BDK wallet. A hardware wallet signs, or "This computer" if you have none.</p></div>
-</div>
-<ol class="steps">
-<li><b>Deposit</b> into Spending by Lightning or on chain.</li>
-<li><b>Above the target?</b> The excess is split into denominations (1-2-5 series) and queued.</li>
-<li><b>Exit</b> one denomination at a time, after a Poisson-timed random delay, once its anonymity estimate has grown. "Exit now" is always possible, and marked as a lower-privacy coin.</li>
-<li><b>Spend from Saving:</b> the change goes to a fresh federation deposit address, back into Spending.</li>
-<li><b>Refill:</b> when Spending is low, one click sends the smallest Saving coins that cover the gap into the federation. No change output.</li>
-</ol>
+<h2>Demo video</h2>
+<video controls playsinline preload="metadata" poster="img/s-02-queue.png" src="fedimix-full-demo.mp4"></video>
+<p class="note">4 min. First 2:16 is the real app on a local regtest federation. The rest, the exit flow, is simulated and says so on screen. Exits only: <a href="exits-demo.mp4" style="color:var(--acc)">exits-demo.mp4</a></p>
 </section>
-
 <section>
-<h2>Screenshots</h2>
-<div class="gal">
-<figure><img loading="lazy" src="img/r-05-joined.png" alt="Joined a federation"><figcaption><span class="tag r">Real (regtest)</span><br>Joined a real Fedimint 0.13 federation with an invite code.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-07-lightning-received.png" alt="Lightning receive"><figcaption><span class="tag r">Real (regtest)</span><br>Lightning receive: ecash arrives in Spending, gateway fee shown.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-10-saving-set-up.png" alt="Saving set up"><figcaption><span class="tag r">Real (regtest)</span><br>Saving set up on "This computer", keyed from the same recovery words.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-14-send-review-change.png" alt="Send review"><figcaption><span class="tag r">Real (regtest)</span><br>Send from Saving: the review shows the change going to Spending.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-16-change-in-spending.png" alt="Change arrived"><figcaption><span class="tag r">Real (regtest)</span><br>The federation credits the change as a deposit in Spending.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-19-refill-review.png" alt="Refill review"><figcaption><span class="tag r">Real (regtest)</span><br>Refill: Spending is below target, Saving coins move up, no change output.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-23-saving-history.png" alt="Saving history"><figcaption><span class="tag r">Real (regtest)</span><br>Saving history, with the refill confirmed.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-25-dark-spending.png" alt="Dark Spending"><figcaption><span class="tag r">Real (regtest)</span><br>Spending in the dark theme.</figcaption></figure>
-<figure><img loading="lazy" src="img/r-26-dark-saving.png" alt="Dark Saving"><figcaption><span class="tag r">Real (regtest)</span><br>Saving in the dark theme.</figcaption></figure>
-<figure><img loading="lazy" src="img/s-02-queue.png" alt="Exit queue"><figcaption><span class="tag s">Simulated (demo backend)</span><br>The exit queue: denominations, anonymity now and target.</figcaption></figure>
-<figure><img loading="lazy" src="img/s-05-landed-privacy-tags.png" alt="Privacy tags"><figcaption><span class="tag s">Simulated (demo backend)</span><br>A coin landed in Saving with a privacy tag ("anon set 73").</figcaption></figure>
-<figure><img loading="lazy" src="img/s-08-exit-now-confirm.png" alt="Exit now"><figcaption><span class="tag s">Simulated (demo backend)</span><br>"Exit now (lower privacy)" shows the fee and warns.</figcaption></figure>
-<figure><img loading="lazy" src="img/s-09-early-exit-label.png" alt="Early exit label"><figcaption><span class="tag s">Simulated (demo backend)</span><br>Early exits stay labelled in Saving.</figcaption></figure>
-</div>
-<p class="note" style="margin-top:14px">Exits-only video (102 s, simulated): <a href="exits-demo.mp4" style="color:var(--acc)">exits-demo.mp4</a></p>
-</section>
-
-<section>
-<h2>Status, honestly</h2>
-<div class="warn"><b>Hackathon prototype. Not for real funds.</b> Everything shown ran on a local regtest network with worthless coins. Nothing has run on signet or mainnet.</div>
-<div class="cols">
-<div class="box"><h3>Built and tested</h3><ul>
-<li>Phases 1-3 against a local regtest federation</li>
-<li>Both fedimint 0.13 module generations</li>
-<li>Lightning and on-chain, Spending and Saving</li>
-<li>Change flow and Refill</li></ul></div>
-<div class="box"><h3>In progress</h3><ul>
-<li>Phase 4 exits: work in the demo backend, in progress on the real backend</li></ul></div>
-<div class="box"><h3>Not built</h3><ul>
-<li>Cover traffic and the tray (Phase 5)</li>
-<li>Restore from words inside the app</li>
-<li>Mainnet use</li>
-<li>Hardware wallets compile but have not been tried on a device</li></ul></div>
-</div>
-</section>
-
-<section>
-<h2>Tech</h2>
-<div class="chips"><span>Rust</span><span>GTK4 / libadwaita</span><span>Fedimint 0.13</span><span>BDK</span><span>async-hwi</span><span>Nix</span></div>
+<div class="warn"><b>Status, honestly.</b> Hackathon prototype, not for real funds. The exit flow (steps 2 to 4) runs on the demo backend and is simulated; the real backend's exits are being finished. Deposit, sends with change into Spending, and refill run for real on a local regtest federation with worthless coins. Nothing has run on signet or mainnet.</div>
+<p><a href="https://github.com/elsiribot/fedimix" style="color:var(--acc)">Source on GitHub</a></p>
 </section>
 <footer>Fedimix hackathon prototype.</footer>
 </main></body></html>
